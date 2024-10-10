@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.repositories.CategoryRepository;
-import com.devsuperior.dscatalog.services.exceptions.EntityNotFoundException;
+import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class CategoryService {
@@ -32,7 +34,7 @@ public class CategoryService {
 		Optional<Category> obj = categoryRepository.findById(id);
 		
 		// orElseThrow lança uma excessão ser obj vier vazio, ou seja, se o id não for encontrado
-		Category entity = obj.orElseThrow(() -> new EntityNotFoundException("Entity not found!"));
+		Category entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found!"));
 		
 		return new CategoryDTO(entity);
 	}
@@ -46,6 +48,25 @@ public class CategoryService {
 		entity = categoryRepository.save(entity);
 		
 		return new CategoryDTO(entity);
+	}
+
+	@Transactional
+	public CategoryDTO update(Long id, CategoryDTO categoryDTO) {
+		
+		try {
+			// o getOne não toca no bd, ele instancia um obj provisório com os dados e o id no obj e só quando é 
+			// pedido para salvar que ele acessa o bd
+			Category entity = categoryRepository.getOne(id);
+			
+			entity.setName(categoryDTO.getName());
+			entity = categoryRepository.save(entity);
+			
+			return new CategoryDTO(entity);
+			
+		}catch(EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id not found " + id);
+		}
+		
 	}
 	
 }
