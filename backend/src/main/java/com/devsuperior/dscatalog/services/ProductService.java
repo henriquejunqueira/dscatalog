@@ -10,8 +10,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.dto.ProductDTO;
+import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
+import com.devsuperior.dscatalog.repositories.CategoryRepository;
 import com.devsuperior.dscatalog.repositories.ProductRepository;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
@@ -23,6 +26,9 @@ public class ProductService {
 
 	@Autowired
 	private ProductRepository productRepository;
+	
+	@Autowired
+	private CategoryRepository categoryRepository;
 	
 	@Transactional(readOnly = true)
 	public Page<ProductDTO> findAllPaged(PageRequest pageRequest){
@@ -45,7 +51,7 @@ public class ProductService {
 	public ProductDTO insert(ProductDTO productDTO) {
 		Product entity = new Product();
 		
-		//entity.setName(productDTO.getName());
+		copyDtoToEntity(productDTO, entity);
 		
 		entity = productRepository.save(entity);
 		
@@ -59,7 +65,7 @@ public class ProductService {
 			
 			Product entity = productRepository.getOne(id);
 			
-			//entity.setName(productDTO.getName());
+			copyDtoToEntity(productDTO, entity);
 			
 			entity = productRepository.save(entity);
 			
@@ -79,6 +85,24 @@ public class ProductService {
 		}catch(DataIntegrityViolationException e) {
 			throw new DatabaseException("Integrity violation");
 		}
+	}
+	
+	private void copyDtoToEntity(ProductDTO productDTO, Product entity) {
+		
+		entity.setName(productDTO.getName());
+		entity.setDescription(productDTO.getDescription());
+		entity.setDate(productDTO.getDate());
+		entity.setImgUrl(productDTO.getImgUrl());
+		entity.setPrice(productDTO.getPrice());
+		
+		entity.getCategories().clear();
+		
+		for(CategoryDTO catDto : productDTO.getCategories()) {
+			Category category = categoryRepository.getOne(catDto.getId());
+			
+			entity.getCategories().add(category);
+		}
+		
 	}
 	
 }
