@@ -18,6 +18,7 @@ public class SecurityConfig{
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/h2-console/**").permitAll() // Permitir todas as requisições para o H2 Console
                 .requestMatchers("/users/**").permitAll() // Permitir todas as requisições para /users
+                .requestMatchers("/products/**").permitAll() // Permitir todas as requisições para /products
                 .anyRequest().authenticated() // Exigir autenticação para outras rotas
             )
             .csrf().disable() // Desativar CSRF (requerido para o H2 Console funcionar)
