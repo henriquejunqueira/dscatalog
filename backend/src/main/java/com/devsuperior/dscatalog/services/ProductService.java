@@ -95,7 +95,7 @@ public class ProductService {
 		entity.setImgUrl(productDTO.getImgUrl());
 		entity.setPrice(productDTO.getPrice());
 		
-		entity.getCategories().clear();
+		entity.getCategories().clear(); // limpa a coleção (Set) de categorias
 		
 		for(CategoryDTO catDto : productDTO.getCategories()) {
 			Category category = categoryRepository.getOne(catDto.getId());
